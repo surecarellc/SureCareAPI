@@ -20,9 +20,7 @@ namespace SureCare.Functions
             log.LogInformation("C# HTTP trigger function processed a request.");
 
             string name = req.Query["name"];
-            //test comment
-            //test again
-            //test again agian
+            //more tests
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             name = name ?? data?.name;
