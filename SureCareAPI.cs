@@ -21,6 +21,7 @@ namespace SureCare.Functions
 
             string name = req.Query["name"];
             //more tests
+            //test again
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             name = name ?? data?.name;
