@@ -26,7 +26,7 @@ jobs:
       - name: Publish .NET App
         shell: pwsh
         run: |
-          dotnet publish ./Azure Function Test.csproj --configuration Release --output ./output
+          dotnet publish "./Azure Function Test.csproj" --configuration Release --output ./output
 
 
       - name: Login to Azure
