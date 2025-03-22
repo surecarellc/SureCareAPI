@@ -3,9 +3,6 @@ name: Deploy DotNet project to Azure Function App
 on:
   [push]
 
-permissions:
-  contents: read
-
 env:
   AZURE_FUNCTIONAPP_NAME: 'SureCareAPI'
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'
