@@ -1,7 +1,9 @@
-name: Deploy DotNet project to Azure Function App
+name: Deploy to Azure Function App
 
 on:
-  [push]
+  push:
+    branches:
+      - main
 
 env:
   AZURE_FUNCTIONAPP_NAME: 'SureCareAPI'
@@ -11,10 +13,9 @@ env:
 jobs:
   build-and-deploy:
     runs-on: windows-latest
-    environment: dev
 
     steps:
-      - name: Checkout Repo
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Setup .NET
@@ -22,24 +23,22 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
-      - name: Build the project
+      - name: Publish .NET App
         shell: pwsh
         run: |
-          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
           dotnet publish --configuration Release --output ./output
-          popd
 
       - name: Login to Azure
-        uses: azure/login@v1
+        uses: azure/login@v1.6.2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_2903AE8FB4914FE29C17BA493531517A }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A3FDA46E70324EA48263595A3B249FBF }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8D0B83EF10FD4C318E41D47F39DA986D }}
-          enable-AzPSSession: false  # 🔑 force token-based login without OIDC
-      
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: false
 
       - name: Deploy to Azure Function App
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
-          package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
+          package: './output'
