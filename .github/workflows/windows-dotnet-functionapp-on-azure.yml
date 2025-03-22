@@ -26,7 +26,8 @@ jobs:
       - name: Publish .NET App
         shell: pwsh
         run: |
-          dotnet publish --configuration Release --output ./output
+          dotnet publish ./SureCareAPI.csproj --configuration Release --output ./output
+
 
       - name: Login to Azure
         uses: azure/login@v1.6.1
