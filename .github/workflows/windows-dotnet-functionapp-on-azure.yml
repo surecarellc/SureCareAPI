@@ -3,44 +3,41 @@ name: Deploy DotNet project to Azure Function App
 on:
   [push]
 
-# CONFIGURATION
-# For help, go to https://github.com/Azure/Actions
-#
-# 1. Set up the following secrets in your repository:
-#   AZURE_FUNCTIONAPP_PUBLISH_PROFILE
-#
-# 2. Change these variables for your configuration:
 env:
-  AZURE_FUNCTIONAPP_NAME: 'SureCareAPI'   # set this to your function app name on Azure
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'       # set this to the path to your function app project, defaults to the repository root
-  DOTNET_VERSION: '8.0.x'             # set this to the dotnet version to use (e.g. '2.1.x', '3.1.x', '5.0.x')          
+  AZURE_FUNCTIONAPP_NAME: 'SureCareAPI'   
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'       
+  DOTNET_VERSION: '8.0.x'              
 
 jobs:
   build-and-deploy:
     runs-on: windows-latest
     environment: dev
+
     steps:
-    - name: 'Checkout GitHub Action'
+    - name: Checkout Repo
       uses: actions/checkout@v3
 
-    - name: Setup DotNet ${{ env.DOTNET_VERSION }} Environment
+    - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: 'Resolve Project Dependencies Using Dotnet'
+    - name: Build the project
       shell: pwsh
       run: |
         pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
-        dotnet build --configuration Release --output ./output
+        dotnet publish --configuration Release --output ./output
         popd
 
-    - name: 'Run Azure Functions Action'
-      uses: Azure/functions-action@v1
-      id: fa
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_2903AE8FB4914FE29C17BA493531517A }}
+        tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A3FDA46E70324EA48263595A3B249FBF }}
+        subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_8D0B83EF10FD4C318E41D47F39DA986D }}
+
+    - name: Deploy to Azure Function App
+      uses: azure/webapps-deploy@v2
       with:
         app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
         package: '${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}/output'
-        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
-
-# For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
