@@ -23,6 +23,8 @@ namespace Company.Function
             [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req,
             ILogger log)
         {
+            return new OkObjectResult("Function started");
+
             log.LogInformation("C# HTTP POST trigger function received a request.");
 
             // Read and deserialize JSON body
