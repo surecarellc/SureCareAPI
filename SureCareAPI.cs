@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
+using System.Threading.Tasks;
+using System.IO;
 
 namespace Company.Function
 {
@@ -15,12 +18,24 @@ namespace Company.Function
         }
 
         [Function("HttpTriggerCSharp")]
-        public IActionResult Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get")] HttpRequest req)
-        {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
 
-            return new OkObjectResult($"Welcome to Azure Functions, {req.Query["name"]}!");
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req,
+            ILogger log)
+        {
+            log.LogInformation("C# HTTP POST trigger function received a request.");
+
+            // Read and deserialize JSON body
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            var data = JsonSerializer.Deserialize<UserInput>(requestBody);
+
+            if (data == null || string.IsNullOrEmpty(data.Name))
+            {
+                return new BadRequestObjectResult("Please provide a valid JSON body with 'name' and 'age'.");
+            }
+
+            return new OkObjectResult($"Hello, {data.Name}! You are {data.Age} years old.");
         }
+
     }
 }
