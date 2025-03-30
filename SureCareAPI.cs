@@ -27,8 +27,7 @@ namespace Company.Function
             {
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                 var data = JsonSerializer.Deserialize<UserInput>(requestBody);
-                //log.LogInformation($"Request body: {requestBody}");
-                //|| string.IsNullOrEmpty(data.Name)
+
                 if (data == null )
                 {
                     return new BadRequestObjectResult("Missing or invalid 'name' in JSON.");
