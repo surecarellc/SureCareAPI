@@ -27,7 +27,7 @@ namespace Company.Function
             {
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                 var data = JsonSerializer.Deserialize<UserInput>(requestBody);
-                log.LogInformation($"Request body: {requestBody}");
+                //log.LogInformation($"Request body: {requestBody}");
 
                 if (data == null || string.IsNullOrEmpty(data.Name))
                 {
