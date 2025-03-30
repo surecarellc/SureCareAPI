@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.IO;
+using System;
 
 namespace Company.Function
 {
@@ -18,25 +19,27 @@ namespace Company.Function
         }
 
         [Function("HttpTriggerCSharp")]
-
         public async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req,
             ILogger log)
         {
-            return new OkObjectResult("Function started");
-
-            log.LogInformation("C# HTTP POST trigger function received a request.");
-
-            // Read and deserialize JSON body
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            var data = JsonSerializer.Deserialize<UserInput>(requestBody);
-
-            if (data == null || string.IsNullOrEmpty(data.Name))
+            try
             {
-                return new BadRequestObjectResult("Please provide a valid JSON body with 'name' and 'age'.");
-            }
+                string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+                var data = JsonSerializer.Deserialize<UserInput>(requestBody);
 
-            return new OkObjectResult($"Hello, {data.Name}! You are {data.Age} years old.");
+                if (data == null || string.IsNullOrEmpty(data.Name))
+                {
+                    return new BadRequestObjectResult("Missing or invalid 'name' in JSON.");
+                }
+
+                return new OkObjectResult($"Hello, {data.Name}! You are {data.Age} years old.");
+            }
+            catch (Exception ex)
+            {
+                log.LogError($"Function crashed: {ex.Message}");
+                return new ObjectResult($"Server error: {ex.Message}") { StatusCode = 500 };
+            }
         }
 
     }
