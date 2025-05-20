@@ -52,7 +52,9 @@ namespace Company.Function
                     return response;
                 }
 
-                string conn = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=trueratedata.database.windows.net;DATABASE=TrueRateSQLData;UID=TrueRateData;PWD=!FutureFortune500!";
+                string conn = "Server=tcp:trueratedata.database.windows.net,1433;" + "Database=TrueRateSQLData;" + "User Id=TrueRateData;" +          // or User ID
+                              "Password=!FutureFortune500!;" + "Encrypt=True;" + "TrustServerCertificate=False;" +  "Connection Timeout=30;";
+
                 List<Dictionary<string, object>> hospital_data = DatabaseHelper.GetTableData(conn, "hospital_data");
 
                 string json = JsonConvert.SerializeObject(hospital_data);
