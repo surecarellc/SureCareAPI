@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Company.Function
 {
@@ -27,7 +28,8 @@ namespace Company.Function
             try
             {
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-                var data = JsonSerializer.Deserialize<UserInput>(requestBody);
+                var data = System.Text.Json.JsonSerializer.Deserialize<UserInput>(requestBody);
+
 
                 if (data == null )
                 {
@@ -54,7 +56,14 @@ namespace Company.Function
                     }
                 };
 
-                return new OkObjectResult(hospital_data);
+                string json = JsonConvert.SerializeObject(hospital_data);
+                return new ContentResult
+                {
+                    Content = json,
+                    ContentType = "application/json",
+                    StatusCode = 200
+                };
+
             }
             catch (Exception ex)
             {
