@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.IO;
 using System;
+using System.Collections.Generic;
 
 namespace Company.Function
 {
@@ -33,7 +34,27 @@ namespace Company.Function
                     return new BadRequestObjectResult("Missing or invalid 'name' in JSON.");
                 }
 
-                return new OkObjectResult($"Hello, {data.Name}! You are {data.Age} years old.");
+                String conn = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=trueratedata.database.windows.net;DATABASE=TrueRateSQLData;UID=TrueRateData;PWD=!FutureFortune500!";
+
+                List<Dictionary<String, Object>> hospital_data = DatabaseHelper.GetTableData(conn, "hospital_data");
+                
+                hospital_data = new List<Dictionary<string, object>>
+                {
+                    new Dictionary<string, object>
+                    {
+                        { "name", "Hospital A" },
+                        { "lat", 32.78f },
+                        { "lng", -96.8f }
+                    },
+                    new Dictionary<string, object>
+                    {
+                        { "name", "Hospital B" },
+                        { "lat", 34.05f },
+                        { "lng", -118.25f }
+                    }
+                };
+
+                return new OkObjectResult(hospital_data);
             }
             catch (Exception ex)
             {
