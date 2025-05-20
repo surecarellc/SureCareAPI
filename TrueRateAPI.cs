@@ -38,9 +38,9 @@ namespace Company.Function
 
                 String conn = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=trueratedata.database.windows.net;DATABASE=TrueRateSQLData;UID=TrueRateData;PWD=!FutureFortune500!";
 
-                List<Dictionary<String, Object>> hospital_data = DatabaseHelper.GetTableData(conn, "hospital_data");
+                //List<Dictionary<String, Object>> hospital_data = DatabaseHelper.GetTableData(conn, "hospital_data");
                 
-                hospital_data = new List<Dictionary<string, object>>
+                var hospital_data = new List<Dictionary<string, object>>
                 {
                     new Dictionary<string, object>
                     {
