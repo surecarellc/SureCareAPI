@@ -1,13 +1,13 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using System.Net;
 using System.Text.Json;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.IO;
 using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
 
 namespace Company.Function
 {
@@ -21,40 +21,54 @@ namespace Company.Function
         }
 
         [Function("HttpTriggerCSharp")]
-        public async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req,
-            ILogger log)
+        public async Task<HttpResponseData> Run(
+            [HttpTrigger(AuthorizationLevel.Function, "post", "options")] HttpRequestData req,
+            FunctionContext context)
         {
+            var response = req.CreateResponse();
+
+            // ✅ Add CORS headers
+            response.Headers.Add("Access-Control-Allow-Origin", "*");
+            response.Headers.Add("Access-Control-Allow-Headers", "*");
+            response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+
+            // ✅ Handle preflight
+            if (req.Method == "OPTIONS")
+            {
+                response.StatusCode = HttpStatusCode.NoContent;
+                return response;
+            }
+
             try
             {
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
                 var data = System.Text.Json.JsonSerializer.Deserialize<UserInput>(requestBody);
 
 
-                if (data == null )
+                if (data == null)
                 {
-                    return new BadRequestObjectResult("Missing or invalid 'name' in JSON.");
+                    response.StatusCode = HttpStatusCode.BadRequest;
+                    await response.WriteStringAsync("Missing or invalid input.");
+                    return response;
                 }
 
-                String conn = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=trueratedata.database.windows.net;DATABASE=TrueRateSQLData;UID=TrueRateData;PWD=!FutureFortune500!";
-
-                List<Dictionary<String, Object>> hospital_data = DatabaseHelper.GetTableData(conn, "hospital_data");
+                string conn = "DRIVER={ODBC Driver 17 for SQL Server};SERVER=trueratedata.database.windows.net;DATABASE=TrueRateSQLData;UID=TrueRateData;PWD=!FutureFortune500!";
+                List<Dictionary<string, object>> hospital_data = DatabaseHelper.GetTableData(conn, "hospital_data");
 
                 string json = JsonConvert.SerializeObject(hospital_data);
-                return new ContentResult
-                {
-                    Content = json,
-                    ContentType = "application/json",
-                    StatusCode = 200
-                };
 
+                response.StatusCode = HttpStatusCode.OK;
+                response.Headers.Add("Content-Type", "application/json");
+                await response.WriteStringAsync(json);
+                return response;
             }
             catch (Exception ex)
             {
-                log.LogError($"Function crashed: {ex.Message}");
-                return new ObjectResult($"Server error: {ex.Message}") { StatusCode = 500 };
+                _logger.LogError($"Function crashed: {ex.Message}");
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                await response.WriteStringAsync("Server error: " + ex.Message);
+                return response;
             }
         }
-
     }
 }
