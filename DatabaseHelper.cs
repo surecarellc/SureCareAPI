@@ -17,6 +17,8 @@ class DatabaseHelper
                 connection.Open();
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
+                    int count = 0;
+
                     while (reader.Read())
                     {
                         var row = new Dictionary<string, object>();
@@ -25,23 +27,32 @@ class DatabaseHelper
                             string columnName = reader.GetName(i);
                             object value = null;
 
-                            if (columnName == "lat" || columnName == "lng" || columnName == "rating")
+                            if (reader.IsDBNull(i))
                             {
-                                value = reader.GetFloat(i);
+                                value = null;
+                            }
+                            else if (columnName == "lat" || columnName == "lng" || columnName == "rating")
+                            {
+                                value = reader.GetDouble(i);
                             }
                             else
                             {
                                 value = reader[i]?.ToString() ?? string.Empty;
                             }
-                            
+
                             row[columnName] = value;
                         }
                         result.Add(row);
+                        count++;
                     }
                 }
             }
             catch (Exception ex)
             {
+                result.Add(new Dictionary<string, object>
+                {
+                    { "key1", ex.Message }
+                });
                 Console.WriteLine("Error: " + ex.Message);
             }
         }

@@ -56,13 +56,28 @@ namespace Company.Function
                               "Password=!FutureFortune500!;" + "Encrypt=True;" + "TrustServerCertificate=False;" +  "Connection Timeout=30;";
 
                 List<Dictionary<string, object>> hospital_data = DatabaseHelper.GetTableData(conn, "hospital_data");
+                int length = hospital_data.Count;
+                //length = (int) hospital_data[0]["key1"];
 
+                /*
+                // Serialize the count into a JSON object (e.g., { "count": 42 })
+                string json = JsonConvert.SerializeObject(new { count = length });
+
+                response.StatusCode = HttpStatusCode.OK;
+                response.Headers.Add("Content-Type", "application/json");
+                await response.WriteStringAsync(json);
+                return response;
+                */
+                
+
+                
                 string json = JsonConvert.SerializeObject(hospital_data);
 
                 response.StatusCode = HttpStatusCode.OK;
                 response.Headers.Add("Content-Type", "application/json");
                 await response.WriteStringAsync(json);
                 return response;
+                
             }
             catch (Exception ex)
             {
