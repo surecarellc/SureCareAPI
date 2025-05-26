@@ -1,7 +1,13 @@
 import json
 import pyodbc
+import os
+from dotenv import load_dotenv
 
-conn = pyodbc.connect("DRIVER={ODBC Driver 17 for SQL Server};SERVER=trueratedata.database.windows.net;DATABASE=TrueRateSQLData;UID=TrueRateData;PWD=!FutureFortune500!")
+load_dotenv()
+conn_str = os.getenv("SQLSERVER_CONNECTION_STRING")
+
+
+conn = pyodbc.connect(conn_str)
 cursor = conn.cursor()
 
 with open("dentist_everything.json", encoding="utf-8") as f:
