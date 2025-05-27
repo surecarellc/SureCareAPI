@@ -22,7 +22,7 @@ namespace Company.Function
 
         [Function("HttpTriggerCSharp")]
         public async Task<HttpResponseData> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "post", "options")] HttpRequestData req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", "post", "options")] HttpRequestData req,
             FunctionContext context)
         {
             var response = req.CreateResponse();
